@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: moseddik <moseddik@student.42.fr>          +#+  +:+       +#+         #
+#    By: moseddik <moseddik@student.1337.ma>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/01/11 16:20:12 by moseddik          #+#    #+#              #
-#    Updated: 2022/01/21 13:19:35 by moseddik         ###   ########.fr        #
+#    Updated: 2022/10/06 11:32:46 by moseddik         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,29 +21,41 @@ BLUE =\033[0;34m
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
 LDFLAGS = -lmlx -Ofast  -framework OpenGL -framework AppKit
-SRCS = src/main.c src/fractals/mandelbrot.c src/fractals/julia.c src/events.c src/ft_utils.c src/fractals/burningShip.c src/coloring_output.c src/coloration.c
+SRCS = src/main.c \
+		src/events.c \
+		src/ft_utils.c \
+		src/coloring_output.c \
+		src/coloration.c
+FRACTAL_SRCS = src/fractals/mandelbrot.c \
+				src/fractals/julia.c \
+				src/fractals/burningShip.c
 
 OBJ-DIR = src/obj-files
 NAME = fractol
-HEADER = -Iinclude
+HEADER = -I include
 
-OBJS = ${SRCS:.c=.o}
+OBJS = $(patsubst src/%.c, src/obj-files/%.o, $(SRCS)) \
+		$(patsubst src/fractals/%.c, src/obj-files/%.o, $(FRACTAL_SRCS))
 
-%.o: %.c
+all: ${NAME}
+
+src/obj-files/%.o: src/%.c | $(OBJ-DIR)
 	@$(CC) $(CLFAGS) -c $^ -o $@ ${HEADER}
+
+src/obj-files/%.o: src/fractals/%.c | $(OBJ-DIR)
+	@$(CC) $(CLFAGS) -c $^ -o $@ ${HEADER}
+
+$(OBJ-DIR):
+	@mkdir -p $@
 
 ${NAME}: ${OBJS}
 	@$(CC) ${OBJS} $(CFLAGS) $(LDFLAGS) -o ${NAME} ${HEADER}
-	@mkdir -p $(OBJ-DIR)
-	@mv src/*.o $(OBJ-DIR)
-	@mv src/fractals/*.o $(OBJ-DIR)
-
 	@echo ""
 	@echo " $(BLUE)Wᴇʟᴄᴏᴍᴇ ᴛᴏ ᴍʏ$(NONE)\n"
 	@sleep 0.6
 	@echo "		$(RED)▒█▀▀▀ ▒█▀▀█ ░█▀▀█ ▒█▀▀█ ▀▀█▀▀ ▒█▀▀▀█ ▒█░░░$(NONE)	"
 	@sleep 0.2
-	@echo "		$(RED)▒█▀▀▀ ▒█▄▄▀ ▒█▄▄█ ▒█░░░ ░▒█░░ ▒█░░▒█ ▒█░░░$(NONE)	" 
+	@echo "		$(RED)▒█▀▀▀ ▒█▄▄▀ ▒█▄▄█ ▒█░░░ ░▒█░░ ▒█░░▒█ ▒█░░░$(NONE)	"
 	@sleep 0.2
 	@echo "		$(RED)▒█░░░ ▒█░▒█ ▒█░▒█ ▒█▄▄█ ░▒█░░ ▒█▄▄▄█ ▒█▄▄█$(NONE)	\n"
 	@sleep 1
@@ -53,10 +65,8 @@ ${NAME}: ${OBJS}
 	@echo " 		$(GRAY)Like this:$(NONE)\n"
 	@echo " 			$(GRAY)> ./fractol mandelbrot$(NONE)"
 	@echo " 			$(GRAY)> ./fractol julia$(NONE)"
-	@echo " 			$(GRAY)> ./fractol burningShip$(NONE)\n"
-	 
-	
-all: ${NAME}
+	@echo " 			$(GRAY)> ./fractol burningship$(NONE)\n"
+
 
 clean:
 	@rm -rf $(OBJ-DIR)
@@ -71,7 +81,7 @@ clean:
 	@echo "                $(BLUE)--------$(NONE)"
 
 fclean:	clean
-	@rm -f ${NAME} 
+	@rm -f ${NAME}
 
 re: fclean all
 
